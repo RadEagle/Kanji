@@ -1,8 +1,9 @@
 # Wrangle a JSON database to suit website needs
+# original data from https://github.com/davidluzgouveia/kanji-data
 import json
 
-print('setting up files...')
 # Open the JSON file
+print('setting up files...')
 file_name = "kanji-jouyou.json"
 json_file = open(file_name, 'r')
 
@@ -25,10 +26,12 @@ book["freq"] = 2500
 book["jlpt_new"] = 0
 book["wk_level"] = 70
 
-# set null values to an arbitrary value
+# modify the JSON data
 print('wrangling data...')
 for kanji in kanji_list:
     item = kanji_json[kanji]
+
+    # set null values to an arbitrary value
     for category in categories:
         if not item[category]:
             item[category] = book[category]
@@ -44,10 +47,10 @@ for kanji in kanji_list:
         del item[category]
 
 # dump the json to the output file
+# make sure to keep kanji in their original form
+# doing dumps normally with pretty print will print them as unicode!!
 print('outputting data...')
-# print(kanji_json)
 pretty_json = json.dumps(kanji_json, indent=2, ensure_ascii=False).encode('utf8')
-# print(pretty_json)
 out_file.write(pretty_json.decode())
 
 # close the files
