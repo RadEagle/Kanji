@@ -9,11 +9,64 @@ file_name = "kanji-jouyou.json"
 json_file = open(file_name, 'r')
 
 # Set up output file
-out_file = open("kanji_4.json", 'w')
+out_file = open("kanji_5.json", 'w')
 
 # Load the file into a JSON object
 print('setting up json...')
 kanji_json = json.load(json_file)
+
+############################################################
+# NEW version 1.2 (reformatting kanji grade list)
+# SOURCES:
+# https://www.kanji-link.com/en/kanji/grade/
+# https://www.kanshudo.com/collections/jlpt_kanji
+# had to replace two more kanji to conform to 2010 standards
+############################################################
+# open up list file
+print('adjusting grade levels...')
+list_file_name = 'kanji_grade_list.txt'
+list_file = open(list_file_name, 'r')
+
+kanji_string = list_file.readline().replace(' ', '').strip('\n')
+count = 1
+
+# adjust grade levels
+while kanji_string:
+    for kanji in kanji_string:
+        kanji_json[kanji]["grade"] = count
+    kanji_string = list_file.readline().replace(' ', '').strip('\n')
+    count += 1
+
+list_file.close()
+
+# jlpt adjust
+jlpt_file_name = 'kanji_jlpt.txt'
+jlpt_file = open(jlpt_file_name, 'r')
+
+kanji_list = [kanji for kanji, _ in kanji_json.items()]
+for kanji in kanji_list:
+    kanji_json[kanji]["jlpt_new"] = 1
+
+kanji_string = jlpt_file.readline().replace(' ', '').strip('\n')
+count = 5
+
+while count > 1:
+    for kanji in kanji_string:
+        kanji_json[kanji]["jlpt_new"] = count
+    kanji_string = jlpt_file.readline().replace(' ', '').strip('\n')
+    count -= 1
+
+jlpt_file.close()
+
+# shinjitai kanji
+confusion = ['叱', '𠮟', '剥', '剝']
+kanji_json[confusion[1]] = kanji_json[confusion[0]].copy()
+kanji_json[confusion[3]] = kanji_json[confusion[2]].copy()
+kanji_json[confusion[1]]['wk_level'] = None
+
+############################################################
+
+# make a new kanji list
 kanji_list = [kanji for kanji, _ in kanji_json.items()]
 
 # setup categories
